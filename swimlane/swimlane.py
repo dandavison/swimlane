@@ -53,6 +53,13 @@ class Swimlane(Drawing):
             fill='white',
         )
 
+    def make_message_text(self, source, target, message, vertical_offset):
+        x = (get_rect_midline(self.peers[source]) +
+             get_rect_midline(self.peers[target])) / 2.0
+
+        y = vertical_offset - self.message_arrow_text_padding
+        return self.text(message, insert=(x, y))
+
     def make_message_arrow(self, source, target, message, vertical_offset):
         line = self.line(
             (get_rect_midline(self.peers[source]), vertical_offset),
@@ -86,13 +93,6 @@ class Swimlane(Drawing):
 
     def make_empty_marker(self):
         return self.marker()
-
-    def make_message_text(self, source, target, message, vertical_offset):
-        x = (get_rect_midline(self.peers[source]) +
-             get_rect_midline(self.peers[target])) / 2.0
-
-        y = vertical_offset - self.message_arrow_text_padding
-        return self.text(message, insert=(x, y))
 
 
 def get_rect_midline(rect):
