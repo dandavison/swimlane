@@ -69,12 +69,14 @@ class Swimlane(Drawing):
         return self.text(message, insert=(x, y))
 
     def make_message_arrow(self, source, target, message, vertical_offset):
+        source_x = get_rect_midline(self.peers[source])
+        target_x = get_rect_midline(self.peers[target])
         line = self.line(
-            (get_rect_midline(self.peers[source]), vertical_offset),
-            (get_rect_midline(self.peers[target]), vertical_offset),
+            (source_x, vertical_offset),
+            (target_x, vertical_offset),
             stroke='black',
         )
-        arrowhead = self.left_arrowhead if source > target else self.right_arrowhead
+        arrowhead = self.right_arrowhead if target_x > source_x else self.left_arrowhead
         line.set_markers((self.empty_marker, self.empty_marker, arrowhead))
         return line
 
