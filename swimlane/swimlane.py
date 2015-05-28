@@ -10,7 +10,7 @@ svg {
 
 class Swimlane(Drawing):
     peer_rect_width = 200
-    peer_rect_height = 800
+    peer_rect_height = 600
     peer_rect_gap = 100
     message_gap = 100
     message_arrow_text_padding = 5
