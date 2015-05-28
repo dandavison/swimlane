@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from svgwrite import Drawing
 
 
@@ -19,7 +20,7 @@ class Swimlane(Drawing):
         super(Swimlane, self).__init__(*args, **kwargs)
         self.defs.add(self.style(CSS))
         self._add_markers()
-        self.peers = dict.fromkeys(parsed['peers'])
+        self.peers = OrderedDict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
 
     def render(self):
