@@ -18,6 +18,8 @@ class Swimlane(Drawing):
     def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
         self.defs.add(self.style(CSS))
+        self.arrowhead = self.make_arrowhead_marker()
+        self.defs.add(self.arrowhead)
         self.peers = dict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
 
@@ -53,11 +55,18 @@ class Swimlane(Drawing):
         )
 
     def make_message_arrow(self, source, target, message, vertical_offset):
-        return self.line(
+        line = self.line(
             (get_rect_midline(self.peers[source]), vertical_offset),
             (get_rect_midline(self.peers[target]), vertical_offset),
             stroke='black',
         )
+        line.set_markers((self.arrowhead, self.arrowhead, self.arrowhead))
+        return line
+
+    def make_arrowhead_marker(self):
+        marker = self.marker(insert=(5,5), size=(10,10))
+        marker.add(self.circle((5, 5), r=5, fill='red'))
+        return marker
 
     def make_message_text(self, source, target, message, vertical_offset):
         x = (get_rect_midline(self.peers[source]) +
