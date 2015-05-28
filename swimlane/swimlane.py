@@ -13,6 +13,7 @@ class Swimlane(Drawing):
     peer_rect_height = 800
     peer_rect_gap = 100
     message_gap = 100
+    message_arrow_text_padding = 5
 
     def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
@@ -32,6 +33,8 @@ class Swimlane(Drawing):
         for message in self.messages:
             self.add(self.make_message_arrow(*message,
                                              vertical_offset=vertical_offset))
+            self.add(self.make_message_text(*message,
+                                            vertical_offset=vertical_offset))
             vertical_offset += self.message_gap
 
         return self
@@ -45,22 +48,30 @@ class Swimlane(Drawing):
         )
 
     def make_message_arrow(self, source, target, message, vertical_offset):
-        def get_midline(rect):
-            return rect['x'] + rect['width'] / 2.0
-
         return self.line(
-            (get_midline(self.peers[source]), vertical_offset),
-            (get_midline(self.peers[target]), vertical_offset),
+            (get_rect_midline(self.peers[source]), vertical_offset),
+            (get_rect_midline(self.peers[target]), vertical_offset),
             stroke='black',
         )
+
+    def make_message_text(self, source, target, message, vertical_offset):
+        x = (get_rect_midline(self.peers[source]) +
+             get_rect_midline(self.peers[target])) / 2.0
+
+        y = vertical_offset - self.message_arrow_text_padding
+        return self.text(message, insert=(x, y))
+
+
+def get_rect_midline(rect):
+    return rect['x'] + rect['width'] / 2.0
 
 
 if __name__ == '__main__':
     swimlane = {
         'peers': ['client', 'server'],
         'messages': [
-            ('client', 'server', 'request'),
-            ('server', 'client', 'response'),
+            ('client', 'server', "Send request"),
+            ('server', 'client', "Send response"),
         ]
     }
 
