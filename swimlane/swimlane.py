@@ -18,8 +18,7 @@ class Swimlane(Drawing):
     def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
         self.defs.add(self.style(CSS))
-        self.arrowhead = self.make_arrowhead_marker()
-        self.defs.add(self.arrowhead)
+        self._add_markers()
         self.peers = dict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
 
@@ -60,13 +59,33 @@ class Swimlane(Drawing):
             (get_rect_midline(self.peers[target]), vertical_offset),
             stroke='black',
         )
-        line.set_markers((self.arrowhead, self.arrowhead, self.arrowhead))
+        arrowhead = self.left_arrowhead if source > target else self.right_arrowhead
+        line.set_markers((self.empty_marker, self.empty_marker, arrowhead))
         return line
 
-    def make_arrowhead_marker(self):
+    def _add_markers(self):
+        self.left_arrowhead = self.make_left_arrowhead_marker()
+        self.right_arrowhead = self.make_right_arrowhead_marker()
+        self.empty_marker = self.make_empty_marker()
+
+        for marker in [self.left_arrowhead,
+                       self.right_arrowhead,
+                       self.empty_marker]:
+            self.defs.add(marker)
+        return self
+
+    def make_left_arrowhead_marker(self):
         marker = self.marker(insert=(5,5), size=(10,10))
-        marker.add(self.circle((5, 5), r=5, fill='red'))
+        marker.add(self.path('M10,2 L10,11 L2,6 L10,2'))
         return marker
+
+    def make_right_arrowhead_marker(self):
+        marker = self.marker(insert=(5,5), size=(10,10))
+        marker.add(self.path('M2,2 L2,11 L10,6 L2,2'))
+        return marker
+
+    def make_empty_marker(self):
+        return self.marker()
 
     def make_message_text(self, source, target, message, vertical_offset):
         x = (get_rect_midline(self.peers[source]) +
