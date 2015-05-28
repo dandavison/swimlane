@@ -13,12 +13,13 @@ class Swimlane(Drawing):
     peer_rect_height = 800
     peer_rect_gap = 100
 
-    def __init__(self, peers, *args, **kwargs):
+    def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
         self.defs.add(self.style(CSS))
-        self.peers = peers
+        self.peers = dict.fromkeys(parsed['peers'])
+        self.messages = parsed['messages']
 
-    def make_peer(self, origin):
+    def make_peer_rect(self, origin):
         return self.rect(
             origin,
             (self.peer_rect_width, self.peer_rect_height),
@@ -30,12 +31,20 @@ class Swimlane(Drawing):
 
         origin = [0, 0]
         for peer in self.peers:
-            self.add(self.make_peer(origin))
+            self.peers[peer] = self.make_peer_rect(origin)
+            self.add(self.peers[peer])
             origin[0] += self.peer_rect_width + self.peer_rect_gap
 
         return self
 
 
 if __name__ == '__main__':
-    peers = ['client', 'server']
-    Swimlane(peers).render().saveas('swimlane.svg')
+    swimlane = {
+        'peers': ['client', 'server'],
+        'messages': [
+            ('client', 'server', 'request'),
+            ('server', 'client', 'response'),
+        ]
+    }
+
+    Swimlane(swimlane).render().saveas('swimlane.svg')
