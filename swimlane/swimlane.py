@@ -22,13 +22,19 @@ class Swimlane(Drawing):
         self.messages = parsed['messages']
 
     def render(self):
+        self._draw_peer_rects()
+        self._draw_messages()
+        return self
 
+    def _draw_peer_rects(self):
         offset = [0, 0]
         for peer in self.peers:
             self.peers[peer] = self.make_peer_rect(offset)
             self.add(self.peers[peer])
             offset[0] += self.peer_rect_width + self.peer_rect_gap
+        return self
 
+    def _draw_messages(self):
         vertical_offset = self.message_gap
         for message in self.messages:
             self.add(self.make_message_arrow(*message,
@@ -36,7 +42,6 @@ class Swimlane(Drawing):
             self.add(self.make_message_text(*message,
                                             vertical_offset=vertical_offset))
             vertical_offset += self.message_gap
-
         return self
 
     def make_peer_rect(self, offset):
