@@ -20,6 +20,22 @@ class Swimlane(Drawing):
         self.peers = dict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
 
+    def render(self):
+
+        offset = [0, 0]
+        for peer in self.peers:
+            self.peers[peer] = self.make_peer_rect(offset)
+            self.add(self.peers[peer])
+            offset[0] += self.peer_rect_width + self.peer_rect_gap
+
+        vertical_offset = self.message_gap
+        for message in self.messages:
+            self.add(self.make_message_arrow(*message,
+                                             vertical_offset=vertical_offset))
+            vertical_offset += self.message_gap
+
+        return self
+
     def make_peer_rect(self, offset):
         return self.rect(
             offset,
@@ -37,22 +53,6 @@ class Swimlane(Drawing):
             (get_midline(self.peers[target]), vertical_offset),
             stroke='black',
         )
-
-    def render(self):
-
-        offset = [0, 0]
-        for peer in self.peers:
-            self.peers[peer] = self.make_peer_rect(offset)
-            self.add(self.peers[peer])
-            offset[0] += self.peer_rect_width + self.peer_rect_gap
-
-        vertical_offset = self.message_gap
-        for message in self.messages:
-            self.add(self.make_message_arrow(*message,
-                                             vertical_offset=vertical_offset))
-            vertical_offset += self.message_gap
-
-        return self
 
 
 if __name__ == '__main__':
