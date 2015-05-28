@@ -107,12 +107,10 @@ def get_rect_midline(rect):
 
 
 if __name__ == '__main__':
-    swimlane = {
-        'peers': ['client', 'server'],
-        'messages': [
-            ('client', 'server', "Send request"),
-            ('server', 'client', "Send response"),
-        ]
-    }
+    import json
+    import sys
 
-    Swimlane(swimlane).render().saveas('swimlane.svg')
+    (path,) = sys.argv[1:]
+
+    with open(path) as fp:
+        print Swimlane(json.load(fp)).render().tostring()

@@ -1,0 +1,18 @@
+{
+  "peers": [
+    "client",
+    "server"
+  ],
+  "messages": [
+    [
+      "client",
+      "server",
+      "Send request"
+    ],
+    [
+      "server",
+      "client",
+      "Send response"
+    ]
+  ]
+}
