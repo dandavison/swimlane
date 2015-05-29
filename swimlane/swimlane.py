@@ -36,7 +36,7 @@ class Swimlane(Drawing):
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
-            self.cursor[1] += self.message_gap
+            self.cursor[1] += self.message_gap / 2.0
         return self
 
     def _draw_peer_rects(self, height):
