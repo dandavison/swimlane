@@ -84,18 +84,27 @@ class Swimlane(Drawing):
             fill='white',
             rx=8,
             ry=8,
+            class_='peer',
         )
 
     def make_peer_text(self, peer, peer_name):
         x = peer['x']
         y = peer['y'] - self.peer_text_padding
-        return self.text(peer_name, insert=(x, y), class_='peer-label')
+        return self.text(
+            peer_name,
+            insert=(x, y),
+            class_='peer-label',
+        )
 
     def make_message_text(self, message, arrow):
         x1, x2 = sorted([arrow['x1'], arrow['x2']])
         x = x1 * 0.75 + x2 * 0.25
         y = self.cursor[1] - self.message_text_padding
-        return self.text(message, insert=(x, y))
+        return self.text(
+            message,
+            insert=(x, y),
+            class_='message-label',
+        )
 
     def make_message_arrow(self, source, target):
         source_x = get_rect_midline(self.peers[source])
@@ -104,6 +113,7 @@ class Swimlane(Drawing):
             (source_x, self.cursor[1]),
             (target_x, self.cursor[1]),
             stroke='black',
+            class_='message',
         )
         line.set_markers(
             (self.empty_marker, self.empty_marker, self.arrowhead),
