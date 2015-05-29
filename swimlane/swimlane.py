@@ -29,6 +29,7 @@ class Swimlane(Drawing):
         self._add_markers()
         self.peers = OrderedDict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
+        self.have_peer_text = False
         self.cursor = None
 
     def render(self):
@@ -45,7 +46,7 @@ class Swimlane(Drawing):
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
-            self.cursor[1] += self.message_gap
+            self.cursor[1] += self.message_gap / 2.0
         return self
 
     def _draw_peer_rects(self, height, peer_names):
@@ -55,9 +56,14 @@ class Swimlane(Drawing):
 
             if peer_name in peer_names:
                 self.add(peer)
+
+            if not self.have_peer_text:
                 self.add(self.make_peer_text(peer, peer_name))
 
             self.cursor[0] += self.peer_rect_width + self.peer_rect_gap
+
+        if not self.have_peer_text:
+            self.have_peer_text = True
 
         return self
 
