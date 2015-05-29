@@ -41,8 +41,8 @@ class Swimlane(Drawing):
                 for (source, target, message) in message_sequence
             ])
             with self.save_excursion():
-                self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1),
-                                      peer_names)
+                self._draw_peer_rects(
+                    self.message_gap * (len(message_sequence) + 1), peer_names)
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
@@ -102,7 +102,9 @@ class Swimlane(Drawing):
             (target_x, self.cursor[1]),
             stroke='black',
         )
-        arrowhead = self.right_arrowhead if target_x > source_x else self.left_arrowhead
+        arrowhead = (self.right_arrowhead
+                     if target_x > source_x
+                     else self.left_arrowhead)
         line.set_markers((self.empty_marker, self.empty_marker, arrowhead))
         return line
 
@@ -118,12 +120,12 @@ class Swimlane(Drawing):
         return self
 
     def make_left_arrowhead_marker(self):
-        marker = self.marker(insert=(5,5), size=(10,10))
+        marker = self.marker(insert=(5, 5), size=(10, 10))
         marker.add(self.path('M10,2 L10,11 L2,6 L10,2'))
         return marker
 
     def make_right_arrowhead_marker(self):
-        marker = self.marker(insert=(5,5), size=(10,10))
+        marker = self.marker(insert=(5, 5), size=(10, 10))
         marker.add(self.path('M2,2 L2,11 L10,6 L2,2'))
         return marker
 
