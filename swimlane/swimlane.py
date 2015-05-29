@@ -69,9 +69,10 @@ class Swimlane(Drawing):
         return self
 
     def _draw_message_sequence(self, messages):
-        for message in messages:
-            self.add(self.make_message_arrow(*message))
-            self.add(self.make_message_text(*message))
+        for source, target, message in messages:
+            arrow = self.make_message_arrow(source, target)
+            self.add(arrow)
+            self.add(self.make_message_text(message, arrow))
             self.cursor[1] += self.message_gap
         return self
 
@@ -90,14 +91,13 @@ class Swimlane(Drawing):
         y = peer['y'] - self.peer_text_padding
         return self.text(peer_name, insert=(x, y), class_='peer-label')
 
-    def make_message_text(self, source, target, message):
-        x = (get_rect_midline(self.peers[source]) +
-             get_rect_midline(self.peers[target])) / 2.0
-
+    def make_message_text(self, message, arrow):
+        x1, x2 = sorted([arrow['x1'], arrow['x2']])
+        x = x1 * 0.75 + x2 * 0.25
         y = self.cursor[1] - self.message_text_padding
         return self.text(message, insert=(x, y))
 
-    def make_message_arrow(self, source, target, message):
+    def make_message_arrow(self, source, target):
         source_x = get_rect_midline(self.peers[source])
         target_x = get_rect_midline(self.peers[target])
         line = self.line(
