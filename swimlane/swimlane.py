@@ -21,7 +21,8 @@ class Swimlane(Drawing):
     peer_rect_height = 600
     peer_rect_gap = 100
     message_gap = 50
-    text_padding = 5
+    peer_text_padding = 15
+    message_text_padding = 8
 
     def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
@@ -80,18 +81,20 @@ class Swimlane(Drawing):
             (self.peer_rect_width, height),
             stroke='black',
             fill='white',
+            rx=8,
+            ry=8,
         )
 
     def make_peer_text(self, peer, peer_name):
         x = peer['x']
-        y = peer['y'] - self.text_padding
+        y = peer['y'] - self.peer_text_padding
         return self.text(peer_name, insert=(x, y), class_='peer-label')
 
     def make_message_text(self, source, target, message):
         x = (get_rect_midline(self.peers[source]) +
              get_rect_midline(self.peers[target])) / 2.0
 
-        y = self.cursor[1] - self.text_padding
+        y = self.cursor[1] - self.message_text_padding
         return self.text(message, insert=(x, y))
 
     def make_message_arrow(self, source, target, message):
