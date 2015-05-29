@@ -7,7 +7,11 @@ from svgwrite import Drawing
 
 CSS = '''
 svg {
-  padding:50px;
+  padding: 50px;
+}
+text.peer-label {
+  font-weight: bold;
+  font-size: x-large;
 }
 '''
 
@@ -81,7 +85,7 @@ class Swimlane(Drawing):
     def make_peer_text(self, peer, peer_name):
         x = get_rect_midline(peer)
         y = peer['y'] - self.text_padding
-        return self.text(peer_name, insert=(x, y))
+        return self.text(peer_name, insert=(x, y), class_='peer-label')
 
     def make_message_text(self, source, target, message):
         x = (get_rect_midline(self.peers[source]) +
