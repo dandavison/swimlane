@@ -22,36 +22,49 @@ class Swimlane(Drawing):
         self._add_markers()
         self.peers = OrderedDict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
+        self.have_peer_text = False
 
     def render(self):
-        self._draw_peer_rects()
-        self._draw_messages()
+        vertical_offset = 0
+        for message_sequence in self.messages:
+            self._draw_peer_rects([0, vertical_offset],
+                                  self.message_gap * (len(message_sequence) + 1))
+            vertical_offset += self.message_gap
+            vertical_offset = self._draw_message_sequence(message_sequence,
+                                                          vertical_offset)
+            vertical_offset += self.message_gap
         return self
 
-    def _draw_peer_rects(self):
-        offset = [0, 0]
+    def _draw_peer_rects(self, offset, height):
         for peer_name in self.peers:
-            peer = self.make_peer_rect(offset)
+            peer = self.make_peer_rect(offset, height)
             self.peers[peer_name] = peer
             self.add(peer)
-            self.add(self.make_peer_text(peer, peer_name))
+
+            if not self.have_peer_text:
+                self.add(self.make_peer_text(peer, peer_name))
+
             offset[0] += self.peer_rect_width + self.peer_rect_gap
+
+        if not self.have_peer_text:
+            self.have_peer_text = True
+
         return self
 
-    def _draw_messages(self):
-        vertical_offset = self.message_gap
-        for message in self.messages:
+    def _draw_message_sequence(self, messages, vertical_offset):
+        for message in messages:
             self.add(self.make_message_arrow(*message,
                                              vertical_offset=vertical_offset))
             self.add(self.make_message_text(*message,
                                             vertical_offset=vertical_offset))
             vertical_offset += self.message_gap
-        return self
 
-    def make_peer_rect(self, offset):
+        return vertical_offset
+
+    def make_peer_rect(self, offset, height):
         return self.rect(
             offset,
-            (self.peer_rect_width, self.peer_rect_height),
+            (self.peer_rect_width, height),
             stroke='black',
             fill='white',
         )
