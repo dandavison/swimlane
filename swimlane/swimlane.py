@@ -83,7 +83,7 @@ class Swimlane(Drawing):
         )
 
     def make_peer_text(self, peer, peer_name):
-        x = get_rect_midline(peer)
+        x = peer['x']
         y = peer['y'] - self.text_padding
         return self.text(peer_name, insert=(x, y), class_='peer-label')
 
