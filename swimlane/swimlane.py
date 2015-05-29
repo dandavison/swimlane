@@ -28,7 +28,8 @@ class Swimlane(Drawing):
         super(Swimlane, self).__init__(*args, **kwargs)
         self.defs.add(self.style(CSS))
         self._add_markers()
-        self.peers = OrderedDict.fromkeys(parsed['peers'])
+        self.peer_titles = OrderedDict(parsed['peers'])
+        self.peers = OrderedDict.fromkeys(self.peer_titles)
         self.messages = parsed['messages']
         self.have_peer_text = False
         self.cursor = None
@@ -90,11 +91,13 @@ class Swimlane(Drawing):
     def make_peer_text(self, peer, peer_name):
         x = peer['x']
         y = peer['y'] - self.peer_text_padding
-        return self.text(
+        text = self.text(
             peer_name,
             insert=(x, y),
             class_='peer-label',
         )
+        text.set_desc(self.peer_titles[peer_name])
+        return text
 
     def make_message_text(self, message, arrow):
         x1, x2 = sorted([arrow['x1'], arrow['x2']])
