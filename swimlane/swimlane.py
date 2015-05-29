@@ -23,47 +23,47 @@ class Swimlane(Drawing):
         self.peers = OrderedDict.fromkeys(parsed['peers'])
         self.messages = parsed['messages']
         self.have_peer_text = False
+        self.cursor = None
 
     def render(self):
-        vertical_offset = 0
+        self.cursor = [0, 0]
         for message_sequence in self.messages:
-            self._draw_peer_rects([0, vertical_offset],
-                                  self.message_gap * (len(message_sequence) + 1))
-            vertical_offset += self.message_gap
-            vertical_offset = self._draw_message_sequence(message_sequence,
-                                                          vertical_offset)
-            vertical_offset += self.message_gap
+
+            cursor = self.cursor[:]
+            self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1))
+            self.cursor = cursor
+
+            self.cursor[1] += self.message_gap
+            self._draw_message_sequence(message_sequence)
+            self.cursor[1] += self.message_gap
         return self
 
-    def _draw_peer_rects(self, offset, height):
+    def _draw_peer_rects(self, height):
         for peer_name in self.peers:
-            peer = self.make_peer_rect(offset, height)
+            peer = self.make_peer_rect(height)
             self.peers[peer_name] = peer
             self.add(peer)
 
             if not self.have_peer_text:
                 self.add(self.make_peer_text(peer, peer_name))
 
-            offset[0] += self.peer_rect_width + self.peer_rect_gap
+            self.cursor[0] += self.peer_rect_width + self.peer_rect_gap
 
         if not self.have_peer_text:
             self.have_peer_text = True
 
         return self
 
-    def _draw_message_sequence(self, messages, vertical_offset):
+    def _draw_message_sequence(self, messages):
         for message in messages:
-            self.add(self.make_message_arrow(*message,
-                                             vertical_offset=vertical_offset))
-            self.add(self.make_message_text(*message,
-                                            vertical_offset=vertical_offset))
-            vertical_offset += self.message_gap
+            self.add(self.make_message_arrow(*message))
+            self.add(self.make_message_text(*message))
+            self.cursor[1] += self.message_gap
+        return self
 
-        return vertical_offset
-
-    def make_peer_rect(self, offset, height):
+    def make_peer_rect(self, height):
         return self.rect(
-            offset,
+            self.cursor,
             (self.peer_rect_width, height),
             stroke='black',
             fill='white',
@@ -74,19 +74,19 @@ class Swimlane(Drawing):
         y = peer['y'] - self.text_padding
         return self.text(peer_name, insert=(x, y))
 
-    def make_message_text(self, source, target, message, vertical_offset):
+    def make_message_text(self, source, target, message):
         x = (get_rect_midline(self.peers[source]) +
              get_rect_midline(self.peers[target])) / 2.0
 
-        y = vertical_offset - self.text_padding
+        y = self.cursor[1] - self.text_padding
         return self.text(message, insert=(x, y))
 
-    def make_message_arrow(self, source, target, message, vertical_offset):
+    def make_message_arrow(self, source, target, message):
         source_x = get_rect_midline(self.peers[source])
         target_x = get_rect_midline(self.peers[target])
         line = self.line(
-            (source_x, vertical_offset),
-            (target_x, vertical_offset),
+            (source_x, self.cursor[1]),
+            (target_x, self.cursor[1]),
             stroke='black',
         )
         arrowhead = self.right_arrowhead if target_x > source_x else self.left_arrowhead
