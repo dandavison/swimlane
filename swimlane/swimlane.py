@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from contextlib import contextmanager
+
 from svgwrite import Drawing
 
 
@@ -29,9 +31,8 @@ class Swimlane(Drawing):
         self.cursor = [0, 0]
         for message_sequence in self.messages:
 
-            cursor = self.cursor[:]
-            self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1))
-            self.cursor = cursor
+            with self.save_excursion():
+                self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1))
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
@@ -116,6 +117,12 @@ class Swimlane(Drawing):
 
     def make_empty_marker(self):
         return self.marker()
+
+    @contextmanager
+    def save_excursion(self):
+        initial_cursor = self.cursor[:]
+        yield
+        self.cursor = initial_cursor
 
 
 def get_rect_midline(rect):
