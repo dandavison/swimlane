@@ -105,31 +105,29 @@ class Swimlane(Drawing):
             (target_x, self.cursor[1]),
             stroke='black',
         )
-        arrowhead = (self.right_arrowhead
-                     if target_x > source_x
-                     else self.left_arrowhead)
-        line.set_markers((self.empty_marker, self.empty_marker, arrowhead))
+        line.set_markers(
+            (self.empty_marker, self.empty_marker, self.arrowhead),
+        )
         return line
 
     def _add_markers(self):
-        self.left_arrowhead = self.make_left_arrowhead_marker()
-        self.right_arrowhead = self.make_right_arrowhead_marker()
+        self.arrowhead = self.make_arrowhead_marker()
         self.empty_marker = self.make_empty_marker()
 
-        for marker in [self.left_arrowhead,
-                       self.right_arrowhead,
+        for marker in [self.arrowhead,
                        self.empty_marker]:
             self.defs.add(marker)
         return self
 
-    def make_left_arrowhead_marker(self):
-        marker = self.marker(insert=(5, 5), size=(10, 10))
-        marker.add(self.path('M10,2 L10,11 L2,6 L10,2'))
-        return marker
-
-    def make_right_arrowhead_marker(self):
-        marker = self.marker(insert=(5, 5), size=(10, 10))
-        marker.add(self.path('M2,2 L2,11 L10,6 L2,2'))
+    def make_arrowhead_marker(self):
+        marker = self.marker(
+            insert=(-2, 0),
+            size=(15, 15),
+            viewBox="-6 -6 12 12",
+            orient='auto',
+            markerUnits='strokeWidth',
+        )
+        marker.add(self.polygon([(-2, 0), (-5, 5), (5, 0), (-5, -5)]))
         return marker
 
     def make_empty_marker(self):
