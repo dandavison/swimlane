@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from contextlib import contextmanager
+from itertools import chain
 
 from svgwrite import Drawing
 
@@ -31,19 +32,26 @@ class Swimlane(Drawing):
         self.cursor = [0, 0]
         for message_sequence in self.messages:
 
+            peer_names = flatten([
+                [source, target]
+                for (source, target, message) in message_sequence
+            ])
             with self.save_excursion():
-                self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1))
+                self._draw_peer_rects(self.message_gap * (len(message_sequence) + 1),
+                                      peer_names)
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
             self.cursor[1] += self.message_gap / 2.0
         return self
 
-    def _draw_peer_rects(self, height):
+    def _draw_peer_rects(self, height, peer_names):
         for peer_name in self.peers:
             peer = self.make_peer_rect(height)
             self.peers[peer_name] = peer
-            self.add(peer)
+
+            if peer_name in peer_names:
+                self.add(peer)
 
             if not self.have_peer_text:
                 self.add(self.make_peer_text(peer, peer_name))
@@ -127,6 +135,10 @@ class Swimlane(Drawing):
 
 def get_rect_midline(rect):
     return rect['x'] + rect['width'] / 2.0
+
+
+def flatten(iterable):
+    return list(chain.from_iterable(iterable))
 
 
 if __name__ == '__main__':
