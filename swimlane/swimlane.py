@@ -178,7 +178,7 @@ def flatten(iterable):
     return list(chain.from_iterable(iterable))
 
 
-if __name__ == '__main__':
+def main():
     import json
     import sys
 
@@ -186,3 +186,7 @@ if __name__ == '__main__':
 
     with open(path) as fp:
         print Swimlane(json.load(fp)).render().tostring()
+
+
+if __name__ == '__main__':
+    main()
