@@ -19,6 +19,8 @@ text.peer-label {
 class Swimlane(Drawing):
     peer_rect_width = 200
     peer_rect_gap = 100
+    peer_rect_rx = 8
+    peer_rect_ry = 8
     message_gap = 40
     peer_text_padding = 15
     message_text_padding = 8
@@ -26,7 +28,8 @@ class Swimlane(Drawing):
 
     def __init__(self, parsed, *args, **kwargs):
         super(Swimlane, self).__init__(*args, **kwargs)
-        self.defs.add(self.style(CSS))
+        user_css = '\n'.join(parsed.pop('css', []))
+        self.defs.add(self.style(CSS + user_css))
         self._add_markers()
         self.peer_titles = OrderedDict(parsed['peers'])
         self.peers = OrderedDict.fromkeys(self.peer_titles)
@@ -37,31 +40,32 @@ class Swimlane(Drawing):
     def render(self):
         self.cursor = [0, 0]
         for message_sequence in self.messages:
-
-            if isinstance(message_sequence[-1], dict):
-                metadata = message_sequence.pop()
-            else:
-                metadata = {}
-
-            peer_names = flatten([
-                [source, target]
-                for (source, target, message) in message_sequence
-            ])
             with self.save_excursion():
-                self._draw_peer_rects(
-                    self.message_gap * (len(message_sequence) + 1),
-                    peer_names,
-                    metadata)
-
+                self._draw_peer_rects(message_sequence)
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
             self.cursor[1] += self.message_gap / 2.0
         return self
 
-    def _draw_peer_rects(self, height, peer_names, metadata):
-        color = 'green' if metadata.get('type') == 'periodic' else 'black'
+    def _draw_peer_rects(self, message_sequence):
+        height = self.message_gap * (len(message_sequence) + 1)
+
+        attrs = {}
+        peer_names = set()
+
+        for source, target, text, _attrs in iter_messages(message_sequence):
+            if _attrs:
+                if source in attrs:
+                    raise AssertionError(
+                        "Multiple attributes present for source %r. "
+                        "Within a single message sequence, a single peer "
+                        "may have attributes specified no more than once.")
+                attrs[source] = _attrs
+            peer_names.add(source)
+            peer_names.add(target)
+
         for peer_name in self.peers:
-            peer = self.make_peer_rect(height, color)
+            peer = self.make_peer_rect(height, attrs.get(peer_name, {}))
             self.peers[peer_name] = peer
 
             if peer_name in peer_names:
@@ -78,7 +82,7 @@ class Swimlane(Drawing):
         return self
 
     def _draw_message_sequence(self, messages):
-        for source, target, message in messages:
+        for source, target, text, attrs in iter_messages(messages):
             if source != target:
                 arrow = self.make_message_arrow(source, target)
                 self.add(arrow)
@@ -86,19 +90,30 @@ class Swimlane(Drawing):
                 x = x1 * 0.75 + x2 * 0.25
             else:
                 x = get_rect_left_midline(self.peers[source])
-            self.add_message_text(message, x)
+            self.add_message_text(text, x)
             self.cursor[1] += self.message_gap
         return self
 
-    def make_peer_rect(self, height, color):
+    def make_peer_rect(self, height, attrs):
+        classes = ['peer']
+        try:
+            classes.append(attrs.pop('class_'))
+        except KeyError:
+            pass
+
+        kwargs = {
+            'stroke': 'black',
+            'fill': 'white',
+            'rx': self.peer_rect_rx,
+            'ry': self.peer_rect_ry,
+            'class_': ' '.join(classes),
+        }
+        kwargs.update(attrs)
+
         return self.rect(
             self.cursor,
             (self.peer_rect_width, height),
-            stroke=color,
-            fill='white',
-            rx=8,
-            ry=8,
-            class_='peer',
+            **kwargs
         )
 
     def make_peer_text(self, peer, peer_name):
@@ -179,6 +194,20 @@ class Swimlane(Drawing):
         initial_cursor = self.cursor[:]
         yield
         self.cursor = initial_cursor
+
+
+def iter_messages(messages):
+    """
+    Yield 4-tuples; append empty attrs dict if missing.
+    """
+    for message in messages:
+        if len(message) == 3:
+            source, target, text = message
+            yield source, target, text, {}
+        elif len(message) == 4:
+            yield tuple(message)
+        else:
+            raise ValueError("Invalid message: %r" % message)
 
 
 def get_rect_midline(rect):
