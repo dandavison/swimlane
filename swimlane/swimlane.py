@@ -19,7 +19,7 @@ text.peer-label {
 class Swimlane(Drawing):
     peer_rect_width = 200
     peer_rect_gap = 100
-    message_gap = 50
+    message_gap = 40
     peer_text_padding = 15
     message_text_padding = 8
     text_background_width = 3
