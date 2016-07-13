@@ -38,22 +38,30 @@ class Swimlane(Drawing):
         self.cursor = [0, 0]
         for message_sequence in self.messages:
 
+            if isinstance(message_sequence[-1], dict):
+                metadata = message_sequence.pop()
+            else:
+                metadata = {}
+
             peer_names = flatten([
                 [source, target]
                 for (source, target, message) in message_sequence
             ])
             with self.save_excursion():
                 self._draw_peer_rects(
-                    self.message_gap * (len(message_sequence) + 1), peer_names)
+                    self.message_gap * (len(message_sequence) + 1),
+                    peer_names,
+                    metadata)
 
             self.cursor[1] += self.message_gap
             self._draw_message_sequence(message_sequence)
             self.cursor[1] += self.message_gap / 2.0
         return self
 
-    def _draw_peer_rects(self, height, peer_names):
+    def _draw_peer_rects(self, height, peer_names, metadata):
+        color = 'green' if metadata.get('type') == 'periodic' else 'black'
         for peer_name in self.peers:
-            peer = self.make_peer_rect(height)
+            peer = self.make_peer_rect(height, color)
             self.peers[peer_name] = peer
 
             if peer_name in peer_names:
@@ -82,11 +90,11 @@ class Swimlane(Drawing):
             self.cursor[1] += self.message_gap
         return self
 
-    def make_peer_rect(self, height):
+    def make_peer_rect(self, height, color):
         return self.rect(
             self.cursor,
             (self.peer_rect_width, height),
-            stroke='black',
+            stroke=color,
             fill='white',
             rx=8,
             ry=8,
