@@ -71,9 +71,14 @@ class Swimlane(Drawing):
 
     def _draw_message_sequence(self, messages):
         for source, target, message in messages:
-            arrow = self.make_message_arrow(source, target)
-            self.add(arrow)
-            self.add_message_text(message, arrow)
+            if source != target:
+                arrow = self.make_message_arrow(source, target)
+                self.add(arrow)
+                x1, x2 = sorted([arrow['x1'], arrow['x2']])
+                x = x1 * 0.75 + x2 * 0.25
+            else:
+                x = get_rect_left_midline(self.peers[source])
+            self.add_message_text(message, x)
             self.cursor[1] += self.message_gap
         return self
 
@@ -99,25 +104,23 @@ class Swimlane(Drawing):
         text.set_desc(self.peer_titles[peer_name])
         return text
 
-    def add_message_text(self, message, arrow):
+    def add_message_text(self, message, x):
         w = self.text_background_width
         for dx in range(-w, w + 1):
             for dy in range(-w, w + 1):
                 self.add(self.make_message_text(
                     message,
-                    arrow,
+                    x,
                     dx=[dx],
                     dy=[dy],
                     fill='white',
                 ))
         self.add(self.make_message_text(
             message,
-            arrow,
+            x,
         ))
 
-    def make_message_text(self, message, arrow, **kwargs):
-        x1, x2 = sorted([arrow['x1'], arrow['x2']])
-        x = x1 * 0.75 + x2 * 0.25
+    def make_message_text(self, message, x, **kwargs):
         y = self.cursor[1] - self.message_text_padding
         return self.text(
             message,
@@ -171,7 +174,11 @@ class Swimlane(Drawing):
 
 
 def get_rect_midline(rect):
-    return rect['x'] + rect['width'] / 2.0
+    return rect['x'] + rect['width'] * 0.5
+
+
+def get_rect_left_midline(rect):
+    return rect['x'] + rect['width'] * 0.25
 
 
 def flatten(iterable):
