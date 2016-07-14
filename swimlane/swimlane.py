@@ -173,7 +173,7 @@ class Swimlane(Drawing):
 
     def _add_markers(self):
         self.arrowhead = self.make_arrowhead_marker()
-        self.initiating_arrowtail = self.make_arrowhead_marker()
+        self.initiating_arrowtail = self.make_square_marker()
         self.empty_marker = self.make_empty_marker()
 
         for marker in [self.initiating_arrowtail,
@@ -183,6 +183,16 @@ class Swimlane(Drawing):
         return self
 
     def make_arrowhead_marker(self):
+        return self._make_marker(self.polygon(
+            [(-2, 0), (-5, 5), (5, 0), (-5, -5)]
+        ))
+
+    def make_square_marker(self):
+        return self._make_marker(self.polygon(
+            [(-4, -4), (-4, 4), (4, 4), (4, -4)]
+        ))
+
+    def _make_marker(self, polygon):
         marker = self.marker(
             insert=(-2, 0),
             size=(15, 15),
@@ -190,7 +200,7 @@ class Swimlane(Drawing):
             orient='auto',
             markerUnits='strokeWidth',
         )
-        marker.add(self.polygon([(-2, 0), (-5, 5), (5, 0), (-5, -5)]))
+        marker.add(polygon)
         return marker
 
     def make_empty_marker(self):
