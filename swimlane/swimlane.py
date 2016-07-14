@@ -82,10 +82,13 @@ class Swimlane(Drawing):
         return self
 
     def _draw_message_sequence(self, messages):
+        initiating = True
         for source, target, text, attrs in iter_messages(messages):
             if source != target:
-                arrow = self.make_message_arrow(source, target)
+                arrowtail = self.initiating_arrowtail if initiating else None
+                arrow = self.make_message_arrow(source, target, arrowtail)
                 self.add(arrow)
+                initiating = False
                 x1, x2 = sorted([arrow['x1'], arrow['x2']])
                 x = x1 * 0.75 + x2 * 0.25
             else:
@@ -152,7 +155,7 @@ class Swimlane(Drawing):
             **kwargs
         )
 
-    def make_message_arrow(self, source, target):
+    def make_message_arrow(self, source, target, arrowtail=None):
         source_x = get_rect_midline(self.peers[source])
         target_x = get_rect_midline(self.peers[target])
         line = self.line(
@@ -161,16 +164,20 @@ class Swimlane(Drawing):
             stroke='black',
             class_='message',
         )
-        line.set_markers(
-            (self.empty_marker, self.empty_marker, self.arrowhead),
-        )
+        line.set_markers((
+            arrowtail or self.empty_marker,
+            self.empty_marker,
+            self.arrowhead,
+        ))
         return line
 
     def _add_markers(self):
         self.arrowhead = self.make_arrowhead_marker()
+        self.initiating_arrowtail = self.make_arrowhead_marker()
         self.empty_marker = self.make_empty_marker()
 
-        for marker in [self.arrowhead,
+        for marker in [self.initiating_arrowtail,
+                       self.arrowhead,
                        self.empty_marker]:
             self.defs.add(marker)
         return self
