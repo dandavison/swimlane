@@ -246,7 +246,11 @@ def main():
     (path,) = sys.argv[1:]
 
     with open(path) as fp:
-        print Swimlane(json.load(fp)).render().tostring()
+        data = json.load(fp)
+
+    svg = Swimlane(data).render().tostring()
+
+    print(svg)
 
 
 if __name__ == '__main__':
