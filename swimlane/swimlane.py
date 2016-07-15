@@ -239,14 +239,6 @@ def flatten(iterable):
     return list(chain.from_iterable(iterable))
 
 
-HTML = """\
-<!DOCTYPE html>
-<html>
-  <head></head>
-  <body>{svg}</body>
-</html>
-"""
-
 def main():
     import json
     import sys
@@ -258,7 +250,7 @@ def main():
 
     svg = Swimlane(data).render().tostring()
 
-    print(HTML.format(svg=svg))
+    print(svg)
 
 
 if __name__ == '__main__':
