@@ -232,7 +232,7 @@ def get_rect_midline(rect):
 
 
 def get_rect_left_midline(rect):
-    return rect['x'] + rect['width'] * 0.25
+    return rect['x'] + rect['width'] * 0.1
 
 
 def flatten(iterable):
