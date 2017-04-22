@@ -241,16 +241,12 @@ def flatten(iterable):
 
 def main():
     import json
-    import sys
+    from sys import stdin
+    from sys import stdout
 
-    (path,) = sys.argv[1:]
-
-    with open(path) as fp:
-        data = json.load(fp)
-
+    data = json.loads(stdin.read())
     svg = Swimlane(data).render().tostring()
-
-    print(svg)
+    stdout.write(svg)
 
 
 if __name__ == '__main__':
