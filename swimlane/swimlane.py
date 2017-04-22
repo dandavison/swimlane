@@ -240,14 +240,16 @@ def flatten(iterable):
 
 
 def main():
-    import json
+    import yaml
     from sys import argv, stdin, stdout
+    load = yaml.load
 
     if argv[1:]:
         (path,) = argv[1:]
-        data = json.load(path)
+        with open(path) as fp:
+            data = load(fp)
     else:
-        data = json.loads(stdin.read())
+        data = load(stdin.read())
 
     svg = Swimlane(data).render().tostring()
     stdout.write(svg)
