@@ -100,7 +100,7 @@ class Swimlane(Drawing):
     def make_peer_rect(self, height, attrs):
         classes = ['peer']
         try:
-            classes.append(attrs.pop('class_'))
+            classes.append(attrs.pop('class'))
         except KeyError:
             pass
 
