@@ -240,13 +240,13 @@ def flatten(iterable):
 
 
 def main():
-    import json
     import sys
+    from ast import literal_eval
 
     (path,) = sys.argv[1:]
 
     with open(path) as fp:
-        data = json.load(fp)
+        data = literal_eval(fp.read())
 
     svg = Swimlane(data).render().tostring()
 
