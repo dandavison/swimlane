@@ -32,14 +32,7 @@ class Swimlane(Drawing):
         user_css = '\n'.join(parsed.pop('css', []))
         self.defs.add(self.style(CSS + user_css))
         self._add_markers()
-
-        self.peers = OrderedDict()
-        self.peer_data = defaultdict(dict)
-        for label, peer_data in parsed['peers']:
-            self.peers[label] = None
-            self.peer_data[label]['description'] = peer_data.get('description', '')
-            self.peer_data[label]['label'] = peer_data.get('label', label)
-
+        self.peers = OrderedDict(parsed['peers'])
         self.messages = parsed['messages']
         self.have_peer_text = False
         self.cursor = None
@@ -71,15 +64,15 @@ class Swimlane(Drawing):
             peer_names.add(source)
             peer_names.add(target)
 
-        for peer_name in self.peers:
-            peer = self.make_peer_rect(height, attrs.get(peer_name, {}))
-            self.peers[peer_name] = peer
+        for name in self.peers:
+            rect = self.make_peer_rect(height, attrs.get(name, {}))
+            self.peers[name]['rect'] = rect
 
-            if peer_name in peer_names:
-                self.add(peer)
+            if name in peer_names:
+                self.add(rect)
 
             if not self.have_peer_text:
-                self.add(self.make_peer_text(peer, self.peer_data[peer_name].get('label', peer_name)))
+                self.add(self.make_peer_text(name))
 
             self.cursor[0] += self.peer_rect_width + self.peer_rect_gap
 
@@ -99,7 +92,7 @@ class Swimlane(Drawing):
                 x1, x2 = sorted([arrow['x1'], arrow['x2']])
                 x = x1 * 0.75 + x2 * 0.25
             else:
-                x = get_rect_left_midline(self.peers[source])
+                x = get_rect_left_midline(self.peers[source]['rect'])
             self.add_message_text(text, x)
             self.cursor[1] += self.message_gap
         return self
@@ -126,15 +119,16 @@ class Swimlane(Drawing):
             **kwargs
         )
 
-    def make_peer_text(self, peer, peer_name):
-        x = peer['x']
-        y = peer['y'] - self.peer_text_padding
+    def make_peer_text(self, peer_name):
+        peer = self.peers[peer_name]
+        x = peer['rect']['x']
+        y = peer['rect']['y'] - self.peer_text_padding
         text = self.text(
-            peer_name,
+            peer.get('label', peer_name),
             insert=(x, y),
             class_='peer-label',
         )
-        text.set_desc(self.peer_data[peer_name].get('description', ''))
+        text.set_desc(peer.get('description', ''))
         return text
 
     def add_message_text(self, message, x):
@@ -163,8 +157,8 @@ class Swimlane(Drawing):
         )
 
     def make_message_arrow(self, source, target, arrowtail=None):
-        source_x = get_rect_midline(self.peers[source])
-        target_x = get_rect_midline(self.peers[target])
+        source_x = get_rect_midline(self.peers[source]['rect'])
+        target_x = get_rect_midline(self.peers[target]['rect'])
         line = self.line(
             (source_x, self.cursor[1]),
             (target_x, self.cursor[1]),
