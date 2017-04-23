@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections import OrderedDict
 from contextlib import contextmanager
 from itertools import chain
@@ -31,8 +32,14 @@ class Swimlane(Drawing):
         user_css = '\n'.join(parsed.pop('css', []))
         self.defs.add(self.style(CSS + user_css))
         self._add_markers()
-        self.peer_titles = OrderedDict(parsed['peers'])
-        self.peers = OrderedDict.fromkeys(self.peer_titles)
+
+        self.peers = OrderedDict()
+        self.peer_data = defaultdict(dict)
+        for label, peer_data in parsed['peers']:
+            self.peers[label] = None
+            self.peer_data[label]['description'] = peer_data.get('description', '')
+            self.peer_data[label]['label'] = peer_data.get('label', label)
+
         self.messages = parsed['messages']
         self.have_peer_text = False
         self.cursor = None
@@ -72,7 +79,7 @@ class Swimlane(Drawing):
                 self.add(peer)
 
             if not self.have_peer_text:
-                self.add(self.make_peer_text(peer, peer_name))
+                self.add(self.make_peer_text(peer, self.peer_data[peer_name].get('label', peer_name)))
 
             self.cursor[0] += self.peer_rect_width + self.peer_rect_gap
 
@@ -127,7 +134,7 @@ class Swimlane(Drawing):
             insert=(x, y),
             class_='peer-label',
         )
-        text.set_desc(self.peer_titles[peer_name])
+        text.set_desc(self.peer_data[peer_name].get('description', ''))
         return text
 
     def add_message_text(self, message, x):
