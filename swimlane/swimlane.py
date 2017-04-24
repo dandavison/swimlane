@@ -12,7 +12,7 @@ svg {
 }
 text.peer-label {
   font-weight: bold;
-  font-size: x-large;
+  font-size: xx-large;
 }
 '''
 
