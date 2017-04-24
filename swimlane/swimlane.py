@@ -121,12 +121,19 @@ class Swimlane(Drawing):
 
     def make_peer_text(self, peer_name):
         peer = self.peers[peer_name]
+
+        classes = ['peer-label']
+        try:
+            classes.append(peer['class'])
+        except KeyError:
+            pass
+
         x = peer['rect']['x']
         y = peer['rect']['y'] - self.peer_text_padding
         text = self.text(
             peer.get('label', peer_name),
             insert=(x, y),
-            class_='peer-label',
+            class_=' '.join(classes),
         )
         text.set_desc(peer.get('description', ''))
         return text
