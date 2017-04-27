@@ -1,13 +1,16 @@
-from swimlane import Swimlane
+from swimlane.swimlane import Swimlane
 
 
 def test_swimlane():
     swimlane = {
-        'peers': ['client', 'server'],
-        'messages': [
-            ('client', 'server', "Send request"),
-            ('server', 'client', "Send response"),
-        ]
+        'peers': [
+            ('client', {}),
+            ('server', {}),
+        ],
+        'messages': [[
+            ('client', 'server', 'Send request'),
+            ('server', 'client', 'Send response'),
+        ]],
     }
     return Swimlane(swimlane).render().tostring()
 

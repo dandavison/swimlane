@@ -18,6 +18,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'svgwrite',
+        'pyYAML',
     ],
     entry_points={
         'console_scripts': [

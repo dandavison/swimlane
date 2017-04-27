@@ -1,1 +1,2 @@
-svgwrite
+PyYAML==3.12
+svgwrite==1.1.8
